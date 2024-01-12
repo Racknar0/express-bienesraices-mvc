@@ -1,4 +1,6 @@
 import express from 'express';
+import csrf from 'csurf'; //! Importar el modulo de proteccion CSRF
+import cookieParser from 'cookie-parser'; //! Importar el modulo de cookies
 import router from './routes/usuarioRoutes.js';
 import dbInstance from './config/db.js';
 
@@ -6,24 +8,31 @@ import dbInstance from './config/db.js';
 const app = express();
 
 
-//! Habilitar body parser para leer datos del body
+// Habilitar body parser para leer datos del body
 app.use(express.urlencoded({extended: true}));
 
 
-//! Conectar a la base de datos
+//! Habilitar cookie parser
+app.use(cookieParser());
+
+//! Habilitar CSRF: Cross Site Request Forgery
+app.use(csrf({cookie: true})); //! Habilitar CSRF con cookies
+
+
+// Conectar a la base de datos
 try {
     await dbInstance.authenticate();
     console.log('Base de datos conectada');
-    dbInstance.sync(); //! Sincronizar los modelos con la base de datos
+    dbInstance.sync(); // Sincronizar los modelos con la base de datos
 } catch (error) {
     console.log(error);
 }
 
 
-//! Rutas
+// Rutas
 app.use('/auth', router);
 
-//! Habilitar PUG
+// Habilitar PUG
 app.set('view engine', 'pug');
 app.set('views', './views');
 

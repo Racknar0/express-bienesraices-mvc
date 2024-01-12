@@ -5,9 +5,10 @@ import {
 
 import Usuario from '../models/Usuario.js';
 import { generarId }  from '../helpers/tokens.js';
+import { emailRegistro } from '../helpers/email.js';
 
 
-
+// Funcion para mostrar el formulario de login
 const formularioLogin = (req, res) => {
     // Aca va la ruta de la vista con render
     res.render('auth/login', {
@@ -15,16 +16,19 @@ const formularioLogin = (req, res) => {
     });
 };
 
+// Funcion para mostrar el formulario de registro
 const formularioRegistro = (req, res) => {
+    //console.log(req.csrfToken()); // Mostrar el token en la consola
+
     // Aca va la ruta de la vista con render
     res.render('auth/registro', {
         pagina: 'Crear Cuenta',
+        csrfToken: req.csrfToken(), //! Enviar el token a la vista
     });
 };
 
+// Funcion para registrar un usuario
 const registrar = async (req, res) => {
-
-
         // Validar los campos del formulario
         await check('nombre').notEmpty().withMessage("El nombre es obligatorio").run(req);
         await check('email').isEmail().withMessage("Eso no parece un email").run(req);
@@ -40,6 +44,7 @@ const registrar = async (req, res) => {
             return res.render('auth/registro', {
                 pagina: 'Crear Cuenta',
                 errores: resultado.array(),
+                csrfToken: req.csrfToken(), //! Enviar el token a la vista
                 usuario: {
                     nombre: req.body.nombre,
                     email: req.body.email
@@ -54,6 +59,7 @@ const registrar = async (req, res) => {
         if (existeUsuario) {
             return res.render('auth/registro', {
                 pagina: 'Crear Cuenta',
+                csrfToken: req.csrfToken(), // Enviar el token a la vista
                 errores: [{
                     msg: 'El usuario ya esta registrado'
                 }],
@@ -65,8 +71,6 @@ const registrar = async (req, res) => {
         }
 
         
-
-
         const usuario = await Usuario.create({
             nombre: req.body.nombre,
             email: req.body.email,
@@ -74,15 +78,51 @@ const registrar = async (req, res) => {
             token: generarId(),
         });
 
-        // Lógica adicional después de crear el usuario, si es necesario
-        res.status(201).json({
-            mensaje: 'Usuario creado exitosamente',
-            usuario,
-        });
+        // Enviar email de confirmacion
+        emailRegistro({
+            nombre: usuario.nombre,
+            email: usuario.email,
+            token: usuario.token,
+        })
+        
+        // Aca va la ruta de la vista con render
+        res.render('templates/mensaje', {
+            pagina: 'Cuenta Creada Correctamente',
+            mensaje: 'Hemos enviado un correo de confirmación a tu email, presiona el enlace para activar tu cuenta',
+        })
 
         
 };
 
+// Funcion para confirmar la cuenta
+const confirmar = async (req, res, next) => {
+    // Aca va la ruta de la vista con render
+    const { token } = req.params;
+
+    //! Verificar si el token es valido
+    const usuario = await Usuario.findOne({where: {token}}); 
+    if (!usuario) {
+        return res.render('auth/confirmar-cuenta', {
+            pagina: 'Error al confirmar cuenta',
+            mensaje: 'El token para confirmar la cuenta no es valido',
+            error: true,
+        })
+    }
+
+    // Confirmar cuenta
+    usuario.token = null;
+    usuario.confirmado = true;
+    await usuario.save(); //! Guardar en la base de datos
+
+    res.render('auth/confirmar-cuenta', {
+        pagina: 'Cuenta Confirmada',
+        mensaje: 'La cuenta se confirmo correctamente',
+        error: false,
+    })
+    
+};
+
+// Funcion para mostrar el formulario de olvide password
 const formularioOlvidePassword = (req, res) => {
     // Aca va la ruta de la vista con render
     res.render('auth/olvide-password', {
@@ -90,9 +130,12 @@ const formularioOlvidePassword = (req, res) => {
     });
 };
 
+
+
 export {
     formularioLogin,
     formularioRegistro,
-    formularioOlvidePassword,
     registrar,
+    formularioOlvidePassword,
+    confirmar,
 };
