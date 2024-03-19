@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 
+// https://mailtrap.io/  -> Servicio para pruebas de envio de correos
 
 const emailRegistro = async (datos) => {
     const transport = nodemailer.createTransport({

@@ -1,7 +1,10 @@
 import express from 'express';
 import csrf from 'csurf'; //! Importar el modulo de proteccion CSRF
 import cookieParser from 'cookie-parser'; //! Importar el modulo de cookies
-import router from './routes/usuarioRoutes.js';
+
+import usuarioRoutes from './routes/usuarioRoutes.js';
+import propiedadesRoutes from './routes/propiedadesRoutes.js';
+
 import dbInstance from './config/db.js';
 
 // Instanciar express
@@ -29,8 +32,10 @@ try {
 }
 
 
-// Rutas
-app.use('/auth', router);
+// Ruting
+app.use('/auth', usuarioRoutes);
+app.use('/', propiedadesRoutes);
+
 
 // Habilitar PUG
 app.set('view engine', 'pug');

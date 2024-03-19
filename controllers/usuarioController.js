@@ -6,17 +6,90 @@ import {
 import bcrypt from 'bcrypt';
 
 import Usuario from '../models/Usuario.js';
-import { generarId } from '../helpers/tokens.js';
-import { emailRegistro,emailOlvidePassword } from '../helpers/email.js';
+import { generarId, generarJWT } from '../helpers/tokens.js';
+import { emailRegistro, emailOlvidePassword } from '../helpers/email.js';
 
+//* ======= Rutas de autenticacion ======= //
 // Funcion para mostrar el formulario de login
 const formularioLogin = (req, res) => {
     // Aca va la ruta de la vista con render
     res.render('auth/login', {
         pagina: 'Inicio de Sesión',
+        csrfToken: req.csrfToken(), // Enviar el token a la vista
     });
 };
 
+const autenticar = async (req, res) => {
+    // Validar los campos del formulario
+    await check('email')
+        .isEmail()
+        .withMessage('El email es obligatorio')
+        .run(req);
+    await check('password')
+        .notEmpty()
+        .withMessage('El password es obligatorio')
+        .run(req);
+
+    // Mostrar los errores
+    let resultado = validationResult(req);
+
+    // Si el resultado no esta vacio, es porque hay errores
+    if (!resultado.isEmpty()) {
+        // Aca va la ruta de la vista con render y los errores
+        return res.render('auth/login', {
+            pagina: 'Inicio de Sesión',
+            csrfToken: req.csrfToken(), // Enviar el token a la vista
+            errores: resultado.array(),
+        });
+    }
+
+    // Comprobar si el usuario esta registrado
+    const { email, password } = req.body;
+    const usuario = await Usuario.findOne({ where: { email } });
+    if (!usuario) {
+        return res.render('auth/login', {
+            pagina: 'Inicio de Sesión',
+            csrfToken: req.csrfToken(), // Enviar el token a la vista
+            errores: [{ msg: 'El usuario no existe' }],
+        });
+    }
+
+    // Comprobar si el usuario esta confirmado
+    if (!usuario.confirmado) {
+        return res.render('auth/login', {
+            pagina: 'Inicio de Sesión',
+            csrfToken: req.csrfToken(), // Enviar el token a la vista
+            errores: [{ msg: 'Tu cuenta no esta confirmada, revisa tu email' }],
+        });
+    }
+
+    // Comprobar el password
+    if (!usuario.verificarPassword(password)) {
+        // Si el password es incorrecto
+        return res.render('auth/login', {
+            pagina: 'Inicio de Sesión',
+            csrfToken: req.csrfToken(), // Enviar el token a la vista
+            errores: [{ msg: 'El password es incorrecto' }],
+        });
+    }
+
+    // Autenticar el usuario
+    const token = generarJWT({ id: usuario.id, nombre: usuario.nombre });
+
+    // Almacenar el token en la cookie
+    //* Httponly es para que no se pueda acceder al token desde el navegador
+    //* Secure es para que solo se pueda acceder al token en un entorno seguro (https)
+    //* SameSite es para que no se pueda acceder al token desde otro sitio
+
+    return res
+        .cookie('_token', token, {
+            httpOnly: true /* , secure: true, sameSite: 'none'  */,
+            //expires: 9000, // 9000 milisegundos
+        })
+        .redirect('/propiedades');
+};
+
+//* ======= Rutas de registro ======= //
 // Funcion para mostrar el formulario de registro
 const formularioRegistro = (req, res) => {
     //console.log(req.csrfToken()); // Mostrar el token en la consola
@@ -24,7 +97,7 @@ const formularioRegistro = (req, res) => {
     // Aca va la ruta de la vista con render
     res.render('auth/registro', {
         pagina: 'Crear Cuenta',
-        csrfToken: req.csrfToken(), //! Enviar el token a la vista
+        csrfToken: req.csrfToken(), // Enviar el token a la vista
     });
 };
 
@@ -56,7 +129,7 @@ const registrar = async (req, res) => {
         return res.render('auth/registro', {
             pagina: 'Crear Cuenta',
             errores: resultado.array(),
-            csrfToken: req.csrfToken(), //! Enviar el token a la vista
+            csrfToken: req.csrfToken(), // Enviar el token a la vista
             usuario: {
                 nombre: req.body.nombre,
                 email: req.body.email,
@@ -107,6 +180,7 @@ const registrar = async (req, res) => {
     });
 };
 
+//* ======= Rutas de confirmar ======= //
 // Funcion para confirmar la cuenta
 const confirmar = async (req, res, next) => {
     // Aca va la ruta de la vista con render
@@ -134,6 +208,7 @@ const confirmar = async (req, res, next) => {
     });
 };
 
+//* ======= Rutas de olvide password ======= //
 // Funcion para mostrar el formulario de olvide password
 const formularioOlvidePassword = (req, res) => {
     // Aca va la ruta de la vista con render
@@ -195,12 +270,9 @@ const resetearPassword = async (req, res) => {
         pagina: 'Email Enviado',
         mensaje: 'Hemos enviado un correo para reestablecer tu contraseña',
     });
-
 };
 
-
 const comprobarToken = async (req, res) => {
-
     const { token } = req.params;
 
     // Verificar si el token es valido
@@ -209,7 +281,8 @@ const comprobarToken = async (req, res) => {
     if (!usuario) {
         res.render('auth/confirmar-cuenta', {
             pagina: 'Restablecer tu Contraseña',
-            mensaje: 'Hubo un error al validar el token, vuelve a solicitar el cambio de contraseña',
+            mensaje:
+                'Hubo un error al validar el token, vuelve a solicitar el cambio de contraseña',
             error: true,
         });
     }
@@ -219,14 +292,14 @@ const comprobarToken = async (req, res) => {
         pagina: 'Restablecer Contraseña',
         csrfToken: req.csrfToken(),
     });
-}
+};
 
 const nuevoPassword = async (req, res) => {
     // Validar el password
     await check('password')
-    .isLength({ min: 6 })
-    .withMessage('La contraseña debe tener al menos 6 caracteres')
-    .run(req);
+        .isLength({ min: 6 })
+        .withMessage('La contraseña debe tener al menos 6 caracteres')
+        .run(req);
 
     let resultado = validationResult(req);
 
@@ -247,7 +320,7 @@ const nuevoPassword = async (req, res) => {
     const usuario = await Usuario.findOne({ where: { token } });
 
     // Hashear el nuevo password
-    const salt = await bcrypt.genSalt(10); //! Generar el salt para el hash 
+    const salt = await bcrypt.genSalt(10); //! Generar el salt para el hash
     usuario.password = await bcrypt.hash(password, salt); //! Generar el hash
     usuario.token = null;
 
@@ -257,13 +330,11 @@ const nuevoPassword = async (req, res) => {
         pagina: 'Password Modificado',
         mensaje: 'El password se modifico correctamente',
     });
-
-}
-
-
+};
 
 export {
     formularioLogin,
+    autenticar,
     formularioRegistro,
     registrar,
     formularioOlvidePassword,
