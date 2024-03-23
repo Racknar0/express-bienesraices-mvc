@@ -7,6 +7,12 @@ const usuarios = [
         confirmado: 1,
         password: bcrypt.hashSync('123456', 10),
     },
+    {
+        nombre: 'usuario',
+        email: 'user@gmail.com',
+        confirmado: 1,
+        password: bcrypt.hashSync('123456', 10),
+    },
 ];
 
 export default usuarios;
