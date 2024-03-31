@@ -130,7 +130,6 @@ const agregarImagen = async (req, res) => {
     });
 };
 
-
 const almacenarImagen = async (req, res, next) => {
     //Validar que la propiedad existe
     const { id } = req.params;
@@ -171,4 +170,121 @@ const almacenarImagen = async (req, res, next) => {
    
 }
 
-export { admin, crear, guardar, agregarImagen, almacenarImagen };
+const editar = async (req, res) => {
+
+    const { id } = req.params;
+
+    // Validar que la propiedad existe
+    const propiedad = await Propiedad.findByPk(id);
+
+    if (!propiedad) {
+        res.redirect('/propiedades');
+        return;
+    }
+
+    // Validar que la propiedad sea del usuario
+    if (propiedad.usuarioId.toString() !== req.usuario.id.toString()) {
+        res.redirect('/propiedades');
+        return;
+    }
+
+
+
+    // Consultar modelo de precio y categoría
+    const [categorias, precios] = await Promise.all([
+        Categoria.findAll(),
+        Precio.findAll(),
+    ]);
+
+    res.render('propiedades/editar', {
+        pagina: `Editar Propiedad ${propiedad.titulo}`,
+        csrfToken: req.csrfToken(),
+        categorias: categorias,
+        precios: precios,
+        datos: propiedad,
+    });
+};
+
+const guardarCambios = async (req, res) => {
+
+    // Verificar la validación
+    let resultado = validationResult(req);
+
+    if (!resultado.isEmpty()) {
+        // Consultar modelo de precio y categoría
+        const [categorias, precios] = await Promise.all([
+            Categoria.findAll(),
+            Precio.findAll(),
+        ]);
+
+
+        return res.render('propiedades/editar', {
+                pagina: `Editar Propiedad`, 
+                csrfToken: req.csrfToken(),
+                categorias: categorias,
+                precios: precios,
+                errores: resultado.array(),
+                datos: req.body,
+            });
+    }
+
+
+
+    const { id } = req.params;
+
+    // Validar que la propiedad existe
+    const propiedad = await Propiedad.findByPk(id);
+
+    if (!propiedad) {
+        res.redirect('/propiedades');
+        return;
+    }
+
+    // Validar que la propiedad sea del usuario
+    if (propiedad.usuarioId.toString() !== req.usuario.id.toString()) {
+        res.redirect('/propiedades');
+        return;
+    }
+
+    // Reescribir los valores y guardarlos en la base de datos
+    try {
+        
+        const {
+            titulo,
+            descripcion,
+            habitaciones,
+            wc,
+            estacionamiento,
+            lat,
+            lng,
+            calle,
+            precio: precioId,
+            categoria: categoriaId,
+        } = req.body;
+
+        propiedad.set({
+            titulo,
+            descripcion,
+            habitaciones,
+            wc,
+            estacionamiento,
+            lat,
+            lng,
+            calle,
+            precioId,
+            categoriaId,
+        });
+
+        await propiedad.save();
+
+        console.log("Propiedad actualizada");
+
+        res.redirect('/propiedades');
+
+    } catch (error) {
+        console.log(error);
+    }
+
+};
+
+export { admin, crear, guardar, agregarImagen, almacenarImagen, editar, guardarCambios };
