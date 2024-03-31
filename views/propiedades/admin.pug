@@ -18,7 +18,7 @@ block contenido
                                 div(class="sm:w-1/4 md:w-1/6")
                                     img(src=`uploads/${propiedad.imagen}`, alt=`Imagen propiedad/${propiedad.titulo}` class="w-full rounded-lg block")
                                 div(class="sm:w-2/4 md:w-3/6 lg:w-4/6 space-y-3")
-                                    a(href=`#` class="block text-2xl font-extrabold text-indigo-600 truncate")=propiedad.titulo
+                                    a(href=`/propiedad/${propiedad.id}` class="block text-2xl font-extrabold text-indigo-600 truncate")=propiedad.titulo
                                     
                                     p(class="text-md text-black font-bold")=propiedad.categoria.nombre
                                     p(class="text-sm text-gray-500 font-bold flex items-center gap-2")
@@ -31,12 +31,13 @@ block contenido
 
                                 div(class="sm:w-1/4 md:w-2/6 lg:w-1/6 flex flex-col gap-2")
                                     form(action="" method="")
-                                        input(type="submite" class=`w-full text-center cursor-pointer px-2 py-2 md:py-1 text-xs leading-5 font-bold rounded ${propiedad.publicado ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}` value=`${propiedad.publicado ? 'Publicado' : 'No Publicado'}`)
+                                        input(type="submit" class=`w-full text-center cursor-pointer px-2 py-2 md:py-1 text-xs leading-5 font-bold rounded ${propiedad.publicado ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}` value=`${propiedad.publicado ? 'Publicado' : 'No Publicado'}`)
 
                                     a(href=`/propiedades/editar/${propiedad.id}` class="text-center cursor-pointer px-2 py-2 md:py-1 text-xs leading-5 font-bold rounded bg-indigo-100 text-indigo-800") Editar
 
-                                    form(action="" method="")
-                                        input(type="submite" class=` text-center w-full cursor-pointer px-2 py-2 md:py-1 text-xs leading-5 font-bold rounded bg-red-100 text-red-800` value=`Eliminar`)
+                                    form(method="POST" action=`/propiedades/eliminar/${propiedad.id}`)
+                                        input(type="hidden" name="_csrf" value= csrfToken)
+                                        input(type="submit" class=`text-center w-full cursor-pointer px-2 py-2 md:py-1 text-xs leading-5 font-bold rounded bg-red-100 text-red-800` value="Eliminar")
         else
             p.text-center No hay propiedades publicadas
 

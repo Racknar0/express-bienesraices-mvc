@@ -1,23 +1,25 @@
+import { unlink } from 'node:fs/promises';
 import { validationResult } from 'express-validator';
 import { Precio, Categoria, Propiedad } from '../models/index.js';
 
 const admin = async (req, res) => {
-    
     const { id } = req.usuario;
     // Consultar propiedades del usuario
     const propiedades = await Propiedad.findAll({
         where: {
             usuarioId: id,
         },
-        include: [  // Include para traer la relación
-            { model: Categoria , as: 'categoria' },
-            { model: Precio , as: 'precio' },
-        ]
-    })
+        include: [
+            // Include para traer la relación
+            { model: Categoria, as: 'categoria' },
+            { model: Precio, as: 'precio' },
+        ],
+    });
 
     res.render('propiedades/admin', {
         pagina: 'Mis Propiedades',
         propiedades,
+        csrfToken: req.csrfToken(),
     });
 };
 
@@ -153,25 +155,21 @@ const almacenarImagen = async (req, res, next) => {
     // Si todo es correcto, almacenar la imagen
 
     try {
-        
         // Almacenar la imagen y cambiar a publicado
         propiedad.imagen = req.file.filename;
-        propiedad.publicado = 1;
+        propiedad.publicado = 0;
 
-        console.log("subiendo imagen");
+        console.log('subiendo imagen');
 
         await propiedad.save();
 
         next();
-
     } catch (error) {
         console.log(error);
     }
-   
-}
+};
 
 const editar = async (req, res) => {
-
     const { id } = req.params;
 
     // Validar que la propiedad existe
@@ -187,8 +185,6 @@ const editar = async (req, res) => {
         res.redirect('/propiedades');
         return;
     }
-
-
 
     // Consultar modelo de precio y categoría
     const [categorias, precios] = await Promise.all([
@@ -206,7 +202,6 @@ const editar = async (req, res) => {
 };
 
 const guardarCambios = async (req, res) => {
-
     // Verificar la validación
     let resultado = validationResult(req);
 
@@ -217,18 +212,15 @@ const guardarCambios = async (req, res) => {
             Precio.findAll(),
         ]);
 
-
         return res.render('propiedades/editar', {
-                pagina: `Editar Propiedad`, 
-                csrfToken: req.csrfToken(),
-                categorias: categorias,
-                precios: precios,
-                errores: resultado.array(),
-                datos: req.body,
-            });
+            pagina: `Editar Propiedad`,
+            csrfToken: req.csrfToken(),
+            categorias: categorias,
+            precios: precios,
+            errores: resultado.array(),
+            datos: req.body,
+        });
     }
-
-
 
     const { id } = req.params;
 
@@ -248,7 +240,6 @@ const guardarCambios = async (req, res) => {
 
     // Reescribir los valores y guardarlos en la base de datos
     try {
-        
         const {
             titulo,
             descripcion,
@@ -277,14 +268,52 @@ const guardarCambios = async (req, res) => {
 
         await propiedad.save();
 
-        console.log("Propiedad actualizada");
+        console.log('Propiedad actualizada');
 
         res.redirect('/propiedades');
-
     } catch (error) {
         console.log(error);
     }
-
 };
 
-export { admin, crear, guardar, agregarImagen, almacenarImagen, editar, guardarCambios };
+const eliminar = async (req, res) => {
+    const { id } = req.params;
+
+    // Validar que la propiedad existe
+    const propiedad = await Propiedad.findByPk(id);
+
+    if (!propiedad) {
+        res.redirect('/propiedades');
+        return;
+    }
+
+    // Validar que la propiedad sea del usuario
+    if (propiedad.usuarioId.toString() !== req.usuario.id.toString()) {
+        res.redirect('/propiedades');
+        return;
+    }
+
+    // Eliminar la imagen asociada
+    await unlink(`public/uploads/${propiedad.imagen}`);
+
+    // Eliminar la propiedad
+    await propiedad.destroy();
+    res.redirect('/propiedades');
+};
+
+// Muestra una propiedad en específico
+const mostrarPropiedad = async (req, res) => {
+    res.send('Mostrando propiedad');
+};
+
+export {
+    admin,
+    crear,
+    guardar,
+    agregarImagen,
+    almacenarImagen,
+    editar,
+    guardarCambios,
+    eliminar,
+    mostrarPropiedad,
+};

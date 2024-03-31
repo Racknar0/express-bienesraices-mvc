@@ -7,7 +7,9 @@ import {
     agregarImagen,
     almacenarImagen,
     editar,
-    guardarCambios
+    guardarCambios,
+    eliminar,
+    mostrarPropiedad
 } from '../controllers/propiedadController.js';
 import protegerRuta from '../middleware/protegerRuta.js';
 import upload from '../middleware/subirImagen.js';
@@ -74,6 +76,17 @@ router.post(
     body('lat').notEmpty().withMessage('El campo latitud es obligatorio'),
 
     guardarCambios
+);
+
+router.post('/propiedades/eliminar/:id', 
+    protegerRuta, 
+    eliminar
+);
+
+
+// Area Publica
+router.get('/propiedad/:id', 
+    mostrarPropiedad
 );
 
 
