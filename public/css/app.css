@@ -525,6 +525,9 @@ video {
     max-width: 1536px;
   }
 }
+.pointer-events-none {
+  pointer-events: none;
+}
 .relative {
   position: relative;
 }
@@ -599,6 +602,9 @@ video {
 }
 .max-w-md {
   max-width: 28rem;
+}
+.flex-1 {
+  flex: 1 1 0%;
 }
 .cursor-pointer {
   cursor: pointer;
@@ -919,8 +925,16 @@ video {
 }
 @media (min-width: 640px) {
 
+  .sm\:block {
+    display: block;
+  }
+
   .sm\:flex {
     display: flex;
+  }
+
+  .sm\:hidden {
+    display: none;
   }
 
   .sm\:w-1\/4 {
