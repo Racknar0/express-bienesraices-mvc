@@ -3,6 +3,22 @@ import { validationResult } from 'express-validator';
 import { Precio, Categoria, Propiedad } from '../models/index.js';
 
 const admin = async (req, res) => {
+
+    // Leer query string
+    
+    const { pagina: paginaActual } = req.query;
+    
+    // Expresión regular para validar que sea un número
+    const regExp = /[0-9]/;
+    
+    // Validar que sea un número
+    if (!regExp.test(paginaActual)) {
+        return res.redirect('/propiedades?pagina=1');
+    }
+    
+   
+
+
     const { id } = req.usuario;
     // Consultar propiedades del usuario
     const propiedades = await Propiedad.findAll({
