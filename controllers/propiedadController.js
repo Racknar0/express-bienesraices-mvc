@@ -16,27 +16,43 @@ const admin = async (req, res) => {
         return res.redirect('/propiedades?pagina=1');
     }
     
-   
+   try {
+        const { id } = req.usuario;
+
+        // Limites y offset para la paginación
+        const limit = 5;
+
+        // 1 * 5 - 5 = 0 --- 2 * 5 - 5 = 5 --- 3 * 5 - 5 = 10
+        const offset = ((paginaActual * limit) - limit) // Esto es para que la página 1 sea 0 
+        
 
 
-    const { id } = req.usuario;
-    // Consultar propiedades del usuario
-    const propiedades = await Propiedad.findAll({
-        where: {
-            usuarioId: id,
-        },
-        include: [
-            // Include para traer la relación
-            { model: Categoria, as: 'categoria' },
-            { model: Precio, as: 'precio' },
-        ],
-    });
 
-    res.render('propiedades/admin', {
-        pagina: 'Mis Propiedades',
-        propiedades,
-        csrfToken: req.csrfToken(),
-    });
+        // Consultar propiedades del usuario
+        const propiedades = await Propiedad.findAll({
+            limit: limit, // Limitar la cantidad de registros
+            offset: offset, // Este es el offset para la paginación lo que hace es que si estamos en la página 2, el offset sería 5
+            where: {
+                usuarioId: id,
+            },
+            include: [
+                // Include para traer la relación
+                { model: Categoria, as: 'categoria' },
+                { model: Precio, as: 'precio' },
+            ],
+        });
+
+        res.render('propiedades/admin', {
+            pagina: 'Mis Propiedades',
+            propiedades,
+            csrfToken: req.csrfToken(),
+        });
+   } catch (error) {
+         console.log(error);
+   }
+
+
+
 };
 
 // Formulario para nueva propiedad
