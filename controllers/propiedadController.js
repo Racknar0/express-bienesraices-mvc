@@ -29,23 +29,33 @@ const admin = async (req, res) => {
 
 
         // Consultar propiedades del usuario
-        const propiedades = await Propiedad.findAll({
-            limit: limit, // Limitar la cantidad de registros
-            offset: offset, // Este es el offset para la paginación lo que hace es que si estamos en la página 2, el offset sería 5
-            where: {
-                usuarioId: id,
-            },
-            include: [
-                // Include para traer la relación
-                { model: Categoria, as: 'categoria' },
-                { model: Precio, as: 'precio' },
-            ],
-        });
+        const [propiedades, total] = await Promise.all([
+            await Propiedad.findAll({
+                limit: limit, // Limitar la cantidad de registros
+                offset: offset, // Este es el offset para la paginación lo que hace es que si estamos en la página 2, el offset sería 5
+                where: {
+                    usuarioId: id,
+                },
+                include: [
+                    // Include para traer la relación
+                    { model: Categoria, as: 'categoria' },
+                    { model: Precio, as: 'precio' },
+                ],
+            }),
+            await Propiedad.count({
+                where: {
+                    usuarioId: id,
+                },
+            }),
+        ])
+
+        
 
         res.render('propiedades/admin', {
             pagina: 'Mis Propiedades',
             propiedades,
             csrfToken: req.csrfToken(),
+            paginas: Math.ceil(total / limit),
         });
    } catch (error) {
          console.log(error);

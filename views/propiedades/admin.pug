@@ -38,6 +38,15 @@ block contenido
                                     form(method="POST" action=`/propiedades/eliminar/${propiedad.id}`)
                                         input(type="hidden" name="_csrf" value= csrfToken)
                                         input(type="submit" class=`text-center w-full cursor-pointer px-2 py-2 md:py-1 text-xs leading-5 font-bold rounded bg-red-100 text-red-800` value="Eliminar")
+                
+                div(class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6")
+                    div
+                        nav(class="relative z-0 inline-flex rounded-md shadow-md" aria-label="Pagination")
+                            - var n = 1
+                                while n <= paginas
+                                    a(href=`#`) #{n++}
+                                    
+
         else
             p.text-center No hay propiedades publicadas
 
