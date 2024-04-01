@@ -20,7 +20,7 @@ const admin = async (req, res) => {
         const { id } = req.usuario;
 
         // Limites y offset para la paginación
-        const limit = 5;
+        const limit = 3;
 
         // 1 * 5 - 5 = 0 --- 2 * 5 - 5 = 5 --- 3 * 5 - 5 = 10
         const offset = ((paginaActual * limit) - limit) // Esto es para que la página 1 sea 0 
@@ -56,6 +56,7 @@ const admin = async (req, res) => {
             propiedades,
             csrfToken: req.csrfToken(),
             paginas: Math.ceil(total / limit),
+            paginaActual: parseInt(paginaActual),
         });
    } catch (error) {
          console.log(error);

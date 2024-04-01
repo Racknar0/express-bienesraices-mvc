@@ -44,7 +44,7 @@ block contenido
                         nav(class="relative z-0 inline-flex rounded-md shadow-md" aria-label="Pagination")
                             - var n = 1
                                 while n <= paginas
-                                    a(href=`#`) #{n++}
+                                    a(href=`/propiedades?pagina=${n}` class=`${paginaActual == n ? 'bg-indigo-50 border-indigo-500 text-indigo-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-200'} relative inline-flex items-center px-4 py-2 border text-sm font-medium`) #{n++}
                                     
 
         else
