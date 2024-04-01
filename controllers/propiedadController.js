@@ -51,7 +51,7 @@ const guardar = async (req, res) => {
             Precio.findAll(),
         ]);
 
-        res.render('propiedades/crear', {
+        return res.render('propiedades/crear', {
             pagina: 'Crear Propiedad',
             csrfToken: req.csrfToken(),
             categorias: categorias,
@@ -303,7 +303,25 @@ const eliminar = async (req, res) => {
 
 // Muestra una propiedad en específico
 const mostrarPropiedad = async (req, res) => {
-    res.send('Mostrando propiedad');
+    const { id } = req.params;
+
+    // Comprobar que la propiedad existe
+    const propiedad = await Propiedad.findByPk(id, {
+        include: [
+            // Include para traer la relación
+            { model: Categoria, as: 'categoria' },
+            { model: Precio, as: 'precio' },
+        ],
+    });
+
+    if (!propiedad) {
+        res.redirect('/404');
+    }
+
+    res.render('propiedades/mostrar', {
+        pagina: propiedad.titulo,
+        propiedad,
+    });
 };
 
 export {
