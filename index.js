@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser'; //! Importar el modulo de cookies
 
 import usuarioRoutes from './routes/usuarioRoutes.js';
 import propiedadesRoutes from './routes/propiedadesRoutes.js';
+import appRoutes from './routes/appRoutes.js';
 
 import dbInstance from './config/db.js';
 
@@ -35,6 +36,7 @@ try {
 // Ruting
 app.use('/auth', usuarioRoutes);
 app.use('/', propiedadesRoutes);
+app.use('/', appRoutes);
 
 
 // Habilitar PUG
