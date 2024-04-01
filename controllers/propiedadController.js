@@ -9,7 +9,7 @@ const admin = async (req, res) => {
     const { pagina: paginaActual } = req.query;
     
     // Expresión regular para validar que sea un número
-    const regExp = /[0-9]/;
+    const regExp = /^[0-9]$/;
     
     // Validar que sea un número
     if (!regExp.test(paginaActual)) {
