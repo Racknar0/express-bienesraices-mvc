@@ -1,23 +1,13 @@
 const inicio = (req, res) => {
-    res.send('Pagina de inicio');
-}
+    res.render('inicio', {
+        pagina: 'Inicio',
+    });
+};
 
+const categoria = (req, res) => {};
 
-const categoria = (req, res) => {
-}
+const noEncontrado = (req, res) => {};
 
+const buscador = (req, res) => {};
 
-const noEncontrado = (req, res) => {
-}
-
-
-const buscador = (req, res) => {    
-}
-
-
-export {
-    inicio,
-    categoria,
-    noEncontrado,
-    buscador
-} 
+export { inicio, categoria, noEncontrado, buscador };
