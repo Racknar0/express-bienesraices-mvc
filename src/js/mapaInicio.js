@@ -29,7 +29,14 @@
             const marker = new L.marker(
                 [parseFloat(propiedad?.lat), parseFloat(propiedad?.lng)],
                 { autoPan: true, }
-            ).addTo(mapa).bindPopup('Información de la propiedad');
+            ).addTo(mapa).bindPopup(`
+                <p class="text-indigo-600 font-bold m-0">${propiedad?.categoria.nombre}</p>
+                <h1 class="text-md font-extrabold uppercase mb-1">${propiedad?.titulo}</h1>
+                <img class="w-full" src="/uploads/${propiedad?.imagen}" alt="${propiedad?.titulo}">
+                <p class="text-gray-600 font-bold">${propiedad?.precio.nombre}</p>
+                <a href="/propiedad/${propiedad?.id}" class="bg-indigo-600 block p-2 text-center font-bold uppercase text-white" target="_blank" rel="noopener noreferrer"
+                >Ver Propiedad</a>
+            `);
 
             markers.addLayer(marker);
         })

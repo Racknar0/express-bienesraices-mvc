@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.leaflet-container a{
+    color: white;
+    text-decoration: none;
+}
+
+
+.leaflet-popup-content p {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
