@@ -1,4 +1,5 @@
 import { Precio, Categoria, Propiedad } from "../models/index.js";
+import { Sequelize } from 'sequelize';
 
 const inicio = async (req, res) => {
 
@@ -88,6 +89,32 @@ const noEncontrado = (req, res) => {
 
 };
 
-const buscador = (req, res) => {};
+const buscador = async (req, res) => {
+
+    const { term } = req.body;
+
+    // Validar que term no este vacio
+    if (!term || term.trim() === '') {
+        res.redirect('back');
+        return;
+    }
+
+    // Consultar las propiedades   
+    const propiedades = await Propiedad.findAll({
+        where: {
+            titulo: {
+                [Sequelize.Op.iLike]: '%' + term + '%'
+            }
+        },
+        include: [
+            { model: Precio, as: 'precio' },
+        ],
+        order: [
+            ['createdAt', 'DESC']
+        ]
+    })
+
+    console.log(propiedades);
+};
 
 export { inicio, categoria, noEncontrado, buscador };
