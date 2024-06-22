@@ -7,7 +7,62 @@ block  contenido
     div(class="py-5")
         h1(class="text-center text-4xl font-extrabold") Ubicación en el mapa
 
+        div(class="flex flex-col md:flex-row items-center py-10 gap-4")
+            h2(class="text-sm uppercase text-gray-800 font-bold") filtrar propiedades
+
+            div(class="w-full md:w-auto flex items-center gap-2")
+                label(for="categorias" class="text-sm w-24 uppercase text-gray-500 font-bold") Categorías
+                select(id="categorias" class="bg-white w-full px-3 py-2 border border-gray-300 rounded-md shadow") 
+                    option(value="" selected) -- Seleccionar --
+                    each categoria in categorias
+                        option(value=categoria.id)= categoria.nombre
+
+            div(class="w-full md:w-auto flex items-center gap-2")
+                label(for="precios" class="text-sm w-24 uppercase text-gray-500 font-bold") Precios
+                select(id="precios" class="bg-white w-full px-3 py-2 border border-gray-300 rounded-md shadow") 
+                    option(value="" selected) -- Seleccionar --
+                    each precio in precios
+                        option(value=precio.id)= precio.nombre
+
         div(id="mapa-inicio" class="h-[600px] mt-5")
+
+        section(class="py-5")
+            h2(class="text-center text-4xl font-extrabold pt-10") Casas en Venta
+
+            div(class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-14")
+                each propiedad in casas
+                        include ./templates/card
+
+        section(class="py-5")
+            h2(class="text-center text-4xl font-extrabold pt-10") Departamentos en Venta
+
+            div(class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-14")
+                each propiedad in departamentos
+                    include ./templates/card
+
+
+
+
+            br
+            br
+            br
+            br
+            br
+            br
+            hr
+            br
+            hr
+            br
+            hr
+            br
+            pre= JSON.stringify(casas, null, 2)
+            hr
+            br
+            hr
+            br
+            hr
+            br
+            pre= JSON.stringify(departamentos, null, 2)
 
 
 block scripts

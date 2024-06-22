@@ -362,11 +362,13 @@ const mostrarPropiedad = async (req, res) => {
 
     if (!propiedad) {
         res.redirect('/404');
+        return;
     }
 
     res.render('propiedades/mostrar', {
         pagina: propiedad.titulo,
         propiedad,
+        csrfToken: req.csrfToken()
     });
 };
 

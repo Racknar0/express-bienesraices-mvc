@@ -13,6 +13,6 @@ router.get('/categorias/:id', categoria);
 router.get('/404', noEncontrado);
 
 // Pagina de busqueda
-router.get('/buscador', buscador);
+router.post('/buscador', buscador);
 
 export default router;
