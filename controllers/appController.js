@@ -1,5 +1,5 @@
 import { Precio, Categoria, Propiedad } from "../models/index.js";
-import { Sequelize } from 'sequelize';
+import { Op } from 'sequelize';
 
 const inicio = async (req, res) => {
 
@@ -93,6 +93,8 @@ const buscador = async (req, res) => {
 
     const { term } = req.body;
 
+    console.log(term);
+
     // Validar que term no este vacio
     if (!term || term.trim() === '') {
         res.redirect('back');
@@ -103,7 +105,7 @@ const buscador = async (req, res) => {
     const propiedades = await Propiedad.findAll({
         where: {
             titulo: {
-                [Sequelize.Op.iLike]: '%' + term + '%'
+                [Op.like]: '%' + term + '%'
             }
         },
         include: [
@@ -114,7 +116,12 @@ const buscador = async (req, res) => {
         ]
     })
 
-    console.log(propiedades);
+    res.render('busqueda', {
+        pagina: `Resultados para la búsqueda: ${term}`,
+        propiedades,
+        term,
+        csrfToken: req.csrfToken()
+    });
 };
 
 export { inicio, categoria, noEncontrado, buscador };
