@@ -5,8 +5,8 @@ import { Usuario } from '../models/index.js';
 const identificarUsuario = async (req, res, next) => {
     
     // Verificar si hay un token
-    const token = req.cookies._token;
-    if(!token) {
+    const {_token} = req.cookies;
+    if(!_token) {
         req.usuario = null;
         return next();
     }
@@ -19,15 +19,14 @@ const identificarUsuario = async (req, res, next) => {
         // Almacenar el usuario al request
         if (usuario) {
             req.usuario = usuario;
-        } else {
-            return next();
         }
         
         return next();
 
     } catch (error) {
         res.clearCookie('_token');
-        return next();
+        redirect('/auth/login');
+        return
     }
 
     

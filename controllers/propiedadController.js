@@ -351,6 +351,8 @@ const eliminar = async (req, res) => {
 const mostrarPropiedad = async (req, res) => {
     const { id } = req.params;
 
+    console.log(res.usuario);
+
     // Comprobar que la propiedad existe
     const propiedad = await Propiedad.findByPk(id, {
         include: [
@@ -368,7 +370,8 @@ const mostrarPropiedad = async (req, res) => {
     res.render('propiedades/mostrar', {
         pagina: propiedad.titulo,
         propiedad,
-        csrfToken: req.csrfToken()
+        csrfToken: req.csrfToken(),
+        usuario: req.usuario
     });
 };
 
