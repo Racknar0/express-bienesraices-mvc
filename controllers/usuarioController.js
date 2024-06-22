@@ -263,7 +263,7 @@ const resetearPassword = async (req, res) => {
         token: usuario.token,
     });
 
-    console.log('Se envio el email');
+    // console.log('Se envio el email');
 
     // Renderizar un mensaje
     res.render('templates/mensaje', {

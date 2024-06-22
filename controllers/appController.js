@@ -70,7 +70,7 @@ const categoria = async (req, res) => {
         ]
     });
 
-    console.log(categoria);
+    // console.log(categoria);
 
     res.render('categoria', {
         pagina: `${categoria.nombre}s en venta`,
@@ -93,7 +93,7 @@ const buscador = async (req, res) => {
 
     const { term } = req.body;
 
-    console.log(term);
+    // console.log(term);
 
     // Validar que term no este vacio
     if (!term || term.trim() === '') {

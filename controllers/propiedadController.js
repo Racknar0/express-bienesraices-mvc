@@ -159,7 +159,7 @@ const agregarImagen = async (req, res) => {
         return;
     }
 
-    console.log(propiedad);
+    // console.log(propiedad);
 
     // Validar que la propiedad no este publicada
     if (propiedad.publicado) {
@@ -205,7 +205,7 @@ const almacenarImagen = async (req, res, next) => {
         propiedad.imagen = req.file.filename;
         propiedad.publicado = 0;
 
-        console.log('subiendo imagen');
+        // console.log('subiendo imagen');
 
         await propiedad.save();
 
@@ -314,7 +314,7 @@ const guardarCambios = async (req, res) => {
 
         await propiedad.save();
 
-        console.log('Propiedad actualizada');
+        // console.log('Propiedad actualizada');
 
         res.redirect('/propiedades');
     } catch (error) {
